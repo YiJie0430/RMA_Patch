@@ -67,29 +67,27 @@ def readytouse(*args):
 
 def lLogin(parent,dstip,username,password,log):
     #term.host -- dst ip
+    parent.SendMessage("Create telnet session...\n",log)
     print 'Telnet login Start'
-    for a in range(5):
-      time.sleep(2)
+    for a in range(3):
+      time.sleep(0.5)
       access=0
       term = htx.Telnet(dstip)
       data = term.wait("login:",5)[-1]
       print '[%s]%s'%(time.ctime(),data)
       print username
       print password    
-      for i in range(5):
+      for i in range(3):
           term << username
-          time.sleep(2)
+          time.sleep(0.5)
           term << password
-          data=term.wait('Menu>',15)[-1]
+          data=term.wait('Menu>',5)[-1]
           print '[%s]%s'%(time.ctime(),data)
           if 'Menu>' in data: access=1; break 
-          else: term<<'\x03'; break
-          if i == 4:
-            term << '\x03'
-            raise Except('Telnet login Failure')
       if access: 
-        parent.SendMessage("Create telnet session...\n",log,2) 
+        parent.SendMessage("Telnet Login successfully\n",log,2) 
         return term
+    raise Except('Telnet incorrect login')
 
 def ParameterGet(parent,term,mac,log):
     print mac
@@ -378,9 +376,9 @@ def GetMac(parent,log):
     for t in xrange(3):
         sp.check_call(['ping',arm_ip,'-n','1'])
         try: 
-          arp=sp.check_output(['arp','-a'])
-          mac_parse=arp.split(arm_ip)[-1].split('dynamic')[0].strip()
-          mac=mac_parse.replace('-','')
+          arp=sp.check_output(['arp','-a']); print arp
+          mac_parse=arp.split(arm_ip)[-1].split('dynamic')[0].strip(); print mac_parse
+          mac=mac_parse.replace('-',''); print mac
           rf_mac=mac = "%012X"%(int(mac,16)-2)
           return rf_mac.upper()
         except:
